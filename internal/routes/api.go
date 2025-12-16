@@ -2,6 +2,7 @@ package routes
 
 import (
 	"go-article/internal/handler"
+	"go-article/internal/middleware"
 	"go-article/internal/repository"
 	"go-article/internal/service"
 
@@ -20,8 +21,8 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	// Auth Routes (Public)
 	auth := r.Group("/auth")
 	{
-		auth.POST("/register", authHandler.Register)
-		auth.POST("/login", authHandler.Login)
+		auth.POST("/register", middleware.RateLimitByIP(), authHandler.Register)
+		auth.POST("/login", middleware.RateLimitByIP(), authHandler.Login)
 	}
 
 	return r
