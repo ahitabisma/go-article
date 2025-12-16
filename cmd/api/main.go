@@ -1,6 +1,7 @@
 package main
 
 import (
+	"go-article/database/seeds"
 	"go-article/internal/config"
 	"go-article/internal/routes"
 	"os"
@@ -12,6 +13,8 @@ func main() {
 
 	// Connect to the database
 	config.ConnectDatabase()
+
+	seeds.SeedRoles(config.DB)
 
 	// Setup Router
 	r := routes.SetupRoutes(config.DB)

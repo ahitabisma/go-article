@@ -20,7 +20,7 @@ func NewUserHandler(userService service.UserService) *UserHandler {
 
 func (h *UserHandler) Profile(c *gin.Context) {
 	currentUser := c.MustGet("user_id").(float64)
-	userID := uint(currentUser)
+	userID := uint64(currentUser)
 
 	user, err := h.userService.GetUserByID(userID)
 	if err != nil {

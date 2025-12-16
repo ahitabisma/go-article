@@ -2,12 +2,12 @@ package service
 
 import (
 	"errors"
-	"go-article/internal/entity"
+	"go-article/internal/domain/entity"
 	"go-article/internal/repository"
 )
 
 type UserService interface {
-	GetUserByID(userID uint) (entity.User, error)
+	GetUserByID(userID uint64) (entity.UserEntity, error)
 }
 
 type userService struct {
@@ -15,7 +15,7 @@ type userService struct {
 }
 
 // GetUserByID implements UserService.
-func (u *userService) GetUserByID(userID uint) (entity.User, error) {
+func (u *userService) GetUserByID(userID uint64) (entity.UserEntity, error) {
 	user, err := u.userRepo.FindByID(userID)
 	if err != nil {
 		return user, err

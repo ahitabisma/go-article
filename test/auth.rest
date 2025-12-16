@@ -8,7 +8,8 @@ Content-Type: application/json
 {
     "name": "John Doe",
     "email": "user@example.com",
-    "password": "password123"
+    "password": "password123",
+    "role_ids": [1]
 }
 
 ### Login User

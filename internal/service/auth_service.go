@@ -2,7 +2,7 @@ package service
 
 import (
 	"errors"
-	"go-article/internal/entity"
+	"go-article/internal/domain/entity"
 	"go-article/internal/handler/request"
 	"go-article/internal/repository"
 	"go-article/pkg/utils"
@@ -13,17 +13,23 @@ import (
 )
 
 type AuthService interface {
-	Register(request request.RegisterRequest) (entity.User, error)
-	Login(request request.LoginRequest) (entity.User, string, error)
-	Profile(userID uint) (entity.User, error)
+	Register(request request.RegisterRequest) (entity.UserEntity, error)
+	Login(request request.LoginRequest) (entity.UserEntity, string, error)
+	Profile(userID uint64) (entity.UserEntity, error)
 }
 
 type authService struct {
 	userRepository repository.UserRepository
 }
 
+func NewAuthService(userRepo repository.UserRepository) AuthService {
+	return &authService{
+		userRepository: userRepo,
+	}
+}
+
 // Profile implements AuthService.
-func (a *authService) Profile(userID uint) (entity.User, error) {
+func (a *authService) Profile(userID uint64) (entity.UserEntity, error) {
 	user, err := a.userRepository.FindByID(userID)
 	if err != nil {
 		log.Println("Error fetching user in Profile:", err)
@@ -33,7 +39,7 @@ func (a *authService) Profile(userID uint) (entity.User, error) {
 }
 
 // Login implements AuthService.
-func (a *authService) Login(request request.LoginRequest) (entity.User, string, error) {
+func (a *authService) Login(request request.LoginRequest) (entity.UserEntity, string, error) {
 	// Cari user berdasarkan email
 	user, err := a.userRepository.FindByEmail(request.Email)
 	if err != nil {
@@ -60,8 +66,8 @@ func (a *authService) Login(request request.LoginRequest) (entity.User, string, 
 }
 
 // Register implements AuthService.
-func (a *authService) Register(request request.RegisterRequest) (entity.User, error) {
-	user := entity.User{}
+func (a *authService) Register(request request.RegisterRequest) (entity.UserEntity, error) {
+	user := entity.UserEntity{}
 	user.Name = request.Name
 	user.Email = request.Email
 
@@ -74,7 +80,21 @@ func (a *authService) Register(request request.RegisterRequest) (entity.User, er
 
 	user.Password = hashedPassword
 
-	newUser, err := a.userRepository.Create(user)
+	// Validasi role IDs ada di database
+	if len(request.RoleIDs) > 0 {
+		roles, err := a.userRepository.GetRolesByIDs(request.RoleIDs)
+		if err != nil {
+			log.Println("Error fetching roles:", err)
+			return user, err
+		}
+
+		// Cek apakah jumlah role yang ditemukan sama dengan request
+		if len(roles) != len(request.RoleIDs) {
+			return user, errors.New("role IDs are invalid")
+		}
+	}
+
+	newUser, err := a.userRepository.CreateWithRoles(user, request.RoleIDs)
 	if err != nil {
 		// Cek apakah error adalah duplicate key constraint
 		if errors.Is(err, gorm.ErrDuplicatedKey) || strings.Contains(err.Error(), "Duplicate entry") || strings.Contains(err.Error(), "UNIQUE constraint failed") {
@@ -84,10 +104,4 @@ func (a *authService) Register(request request.RegisterRequest) (entity.User, er
 	}
 
 	return newUser, nil
-}
-
-func NewAuthService(userRepo repository.UserRepository) AuthService {
-	return &authService{
-		userRepository: userRepo,
-	}
 }

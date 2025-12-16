@@ -32,7 +32,7 @@ func (h *AuthHandler) Profile(c *gin.Context) {
 		return
 	}
 	// Panggil service untuk mendapatkan profil user
-	user, err := h.authService.Profile(uint(userID))
+	user, err := h.authService.Profile(uint64(userID))
 	if err != nil {
 		response := utils.APIResponse("Failed to fetch profile", http.StatusBadRequest, "error", nil, err.Error())
 		c.JSON(http.StatusBadRequest, response)
@@ -60,6 +60,12 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		if err.Error() == "email already registered" {
 			response := utils.APIResponse("Register account failed", http.StatusConflict, "error", nil, gin.H{"email": "Email already registered"})
 			c.JSON(http.StatusConflict, response)
+			return
+		}
+
+		if err.Error() == "role IDs are invalid" {
+			response := utils.APIResponse("Register account failed", http.StatusBadRequest, "error", nil, gin.H{"role_ids": "One or more role IDs are invalid"})
+			c.JSON(http.StatusBadRequest, response)
 			return
 		}
 
