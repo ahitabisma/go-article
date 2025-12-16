@@ -1,0 +1,21 @@
+@API_URL=http://localhost:3000
+
+### Register User
+POST {{API_URL}}/auth/register
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "email": "user@example.com",
+    "password": "password123"
+}
+
+### Login User
+# @name loginUser
+POST {{API_URL}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "user@example.com",
+    "password": "password123"
+}
