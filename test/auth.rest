@@ -1,4 +1,5 @@
 @API_URL=http://localhost:3000
+@token={{loginUser.response.body.data.token}}
 
 ### Register User
 POST {{API_URL}}/auth/register
@@ -19,3 +20,7 @@ Content-Type: application/json
     "email": "user@example.com",
     "password": "password123"
 }
+
+### Get User Profile
+GET {{API_URL}}/auth/profile
+Authorization: Bearer {{token}}

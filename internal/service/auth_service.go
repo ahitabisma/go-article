@@ -15,10 +15,21 @@ import (
 type AuthService interface {
 	Register(request request.RegisterRequest) (entity.User, error)
 	Login(request request.LoginRequest) (entity.User, string, error)
+	Profile(userID uint) (entity.User, error)
 }
 
 type authService struct {
 	userRepository repository.UserRepository
+}
+
+// Profile implements AuthService.
+func (a *authService) Profile(userID uint) (entity.User, error) {
+	user, err := a.userRepository.FindByID(userID)
+	if err != nil {
+		log.Println("Error fetching user in Profile:", err)
+		return user, err
+	}
+	return user, nil
 }
 
 // Login implements AuthService.

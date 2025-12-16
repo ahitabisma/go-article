@@ -10,10 +10,21 @@ import (
 type UserRepository interface {
 	Create(user entity.User) (entity.User, error)
 	FindByEmail(email string) (entity.User, error)
+	FindByID(id uint) (entity.User, error)
 }
 
 type userRepository struct {
 	db *gorm.DB
+}
+
+// FindByID implements UserRepository.
+func (u *userRepository) FindByID(ID uint) (entity.User, error) {
+	var user entity.User
+	err := u.db.Where("id = ?", ID).Find(&user).Error
+	if err != nil {
+		return user, err
+	}
+	return user, nil
 }
 
 // Create implements UserRepository.
@@ -35,7 +46,6 @@ func (u *userRepository) FindByEmail(email string) (entity.User, error) {
 		return user, err
 	}
 	return user, nil
-
 }
 
 func NewUserRepository(db *gorm.DB) UserRepository {

@@ -17,6 +17,31 @@ func NewAuthHandler(authService service.AuthService) *AuthHandler {
 	return &AuthHandler{authService: authService}
 }
 
+func (h *AuthHandler) Profile(c *gin.Context) {
+	// Ambil user_id dari context
+	userIDInterface, exists := c.Get("user_id")
+	if !exists {
+		response := utils.APIResponse("Unauthorized", http.StatusUnauthorized, "error", nil, "User ID not found in context")
+		c.JSON(http.StatusUnauthorized, response)
+		return
+	}
+	userID, ok := userIDInterface.(float64) // JWT menyimpan angka sebagai float64
+	if !ok {
+		response := utils.APIResponse("Unauthorized", http.StatusUnauthorized, "error", nil, "Invalid user ID format")
+		c.JSON(http.StatusUnauthorized, response)
+		return
+	}
+	// Panggil service untuk mendapatkan profil user
+	user, err := h.authService.Profile(uint(userID))
+	if err != nil {
+		response := utils.APIResponse("Failed to fetch profile", http.StatusBadRequest, "error", nil, err.Error())
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+	response := utils.APIResponse("Profile fetched successfully", http.StatusOK, "success", user, nil)
+	c.JSON(http.StatusOK, response)
+}
+
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req request.RegisterRequest
 

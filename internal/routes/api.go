@@ -23,6 +23,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	{
 		auth.POST("/register", middleware.RateLimitByIP(), authHandler.Register)
 		auth.POST("/login", middleware.RateLimitByIP(), authHandler.Login)
+		auth.GET("/profile", middleware.AuthMiddleware(), authHandler.Profile)
 	}
 
 	return r
