@@ -7,7 +7,7 @@ import (
 )
 
 type UserService interface {
-	GetUserByID(userID uint64) (entity.UserEntity, error)
+	GetUserByID(userID uint64) (*entity.UserEntity, error)
 }
 
 type userService struct {
@@ -15,7 +15,7 @@ type userService struct {
 }
 
 // GetUserByID implements UserService.
-func (u *userService) GetUserByID(userID uint64) (entity.UserEntity, error) {
+func (u *userService) GetUserByID(userID uint64) (*entity.UserEntity, error) {
 	user, err := u.userRepo.FindByID(userID)
 	if err != nil {
 		return user, err

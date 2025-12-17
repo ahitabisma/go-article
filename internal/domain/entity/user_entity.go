@@ -6,7 +6,7 @@ type UserEntity struct {
 	ID         uint64
 	Name       string
 	Email      string
-	Password   string
+	Password   string `json:"-"`
 	Avatar     *string
 	VerifiedAt *string
 	Roles      []model.Role
